@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+body, h1, ul, li, button {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Arial", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    height: 100vh;
+    background-color: #73B8DF; 
+    margin: 0;
+    padding: 0;
+}
+
+.titulo {
+    font-family: "Archivo Black", sans-serif;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;   
+    color: white;
+    font-size: 3rem;
+    margin: 30px 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #EBE9E9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 40%;
+}
+
+.nova-tarefa {
+    width: 50%;
+    background-color: #d8d5d5;
+    border: 1px solid #000;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.card {
+    width: 100%;
+}
+
+.task {
+    background-color: #FFF;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task:not(:last-child) {
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.conteudo {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.texto {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-left: 3%;
+}
+
+.editar, .remover {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
