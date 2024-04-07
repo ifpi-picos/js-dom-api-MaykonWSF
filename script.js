@@ -1,115 +1,139 @@
-// JavaScript Code
-// Constants for API usage (replace with actual API endpoint and your API key)
-const TODOIST_API_URL = 'https://api.todoist.com/rest/v2/tasks';
-const API_KEY = 'ee4da9945733b28e8c36275210782dc76424fdbe';
+const URL_API_TODOIST = 'https://api.todoist.com/rest/v2/tasks'
+const CHAVE_API = 'ee4da9945733b28e8c36275210782dc76424fdbe'
+
+function formatarDataParaBR(dataISO) {
+  if (!dataISO) return 'Sem data'
+  const [ano, mes, dia] = dataISO.split('-')
+  return `${dia}/${mes}/${ano}`
+}
+
+function formatarDataParaISO(dataBR) {
+  const [dia, mes, ano] = dataBR.split('/')
+  return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`
+}
 
 document.querySelector('.nova-tarefa').addEventListener('click', async () => {
-    const taskName = prompt('Enter the task name:');
-    const dueDate = prompt('Enter the due date (YYYY-MM-DD):');
+    const nomeTarefa = prompt('Digite o nome da tarefa:')
+    const dataEntregaBR = prompt('Digite a data de entrega (DD/MM/YYYY):')
   
-    if (taskName && dueDate) {
-      await postTaskToTodoist(taskName, dueDate);
+    if (nomeTarefa && dataEntregaBR) {
+      await postarTarefaParaTodoist(nomeTarefa, dataEntregaBR)
     }
-  });
+})
 
-//Adicionar nova tarefa
-  function addNewTaskCard(taskName, dueDate) {
-  const list = document.querySelector('.card');
+function adicionarNovoCartaoTarefa(nomeTarefa, dataISO, idTarefa) {
+  const lista = document.querySelector('.card')
 
-  const taskItem = document.createElement('li');
-  taskItem.className = 'task';
+  const itemTarefa = document.createElement('li')
+  itemTarefa.className = 'task'
 
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'conteudo';
+  const divConteudo = document.createElement('div')
+  divConteudo.className = 'conteudo'
 
-  const taskInput = document.createElement('input');
-  taskInput.type = 'checkbox';
-  taskInput.id = taskName.toLowerCase().replace(/ /g, '-');
+  const inputTarefa = document.createElement('input')
+  inputTarefa.type = 'checkbox'
+  inputTarefa.id = `tarefa-${idTarefa}`
 
-  const textDiv = document.createElement('div');
-  textDiv.className = 'texto';
+  const divTexto = document.createElement('div')
+  divTexto.className = 'texto'
 
-  const taskLabel = document.createElement('label');
-  taskLabel.htmlFor = taskInput.id;
-  taskLabel.innerHTML = `<strong>${taskName}</strong>`;
+  const rotuloTarefa = document.createElement('label')
+  rotuloTarefa.htmlFor = inputTarefa.id
+  rotuloTarefa.innerHTML = `<strong>${nomeTarefa}</strong>`
 
-  const dateSpan = document.createElement('span');
-  dateSpan.className = 'data';
-  dateSpan.textContent = dueDate;
+  const spanData = document.createElement('span')
+  spanData.className = 'data'
+  spanData.textContent = formatarDataParaBR(dataISO)
 
-  const buttonsDiv = document.createElement('div');
-  buttonsDiv.className = 'botoes';
+  const divBotoes = document.createElement('div')
+  divBotoes.className = 'botoes'
 
-  const removeButton = document.createElement('button');
-  removeButton.className = 'remover';
-  removeButton.innerHTML = '🗑️';
-  // Add an event listener to handle task removal
-  removeButton.addEventListener('click', function() {
-    taskItem.remove();
-  });
+  const botaoRemover = document.createElement('button')
+  botaoRemover.className = 'remover'
+  botaoRemover.innerHTML = '🗑️'
+  botaoRemover.addEventListener('click', function() {
+    removerTarefa(idTarefa, itemTarefa)
+  })
 
-  textDiv.appendChild(taskLabel);
-  textDiv.appendChild(dateSpan);
-  contentDiv.appendChild(taskInput);
-  contentDiv.appendChild(textDiv);
-  taskItem.appendChild(contentDiv);
-  taskItem.appendChild(buttonsDiv);
-  list.appendChild(taskItem);
+  divTexto.appendChild(rotuloTarefa)
+  divTexto.appendChild(spanData)
+  divConteudo.appendChild(inputTarefa)
+  divConteudo.appendChild(divTexto)
+  divBotoes.appendChild(botaoRemover)
+  itemTarefa.appendChild(divConteudo)
+  itemTarefa.appendChild(divBotoes)
+  lista.appendChild(itemTarefa)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    exibirTasks(); // Chama a função para carregar e exibir as tarefas existentes
-});
+    exibirTarefas()
+})
 
-// Função para exibir as tarefas na página
-async function exibirTasks() {
+async function exibirTarefas() {
     try {
-        const response = await fetch(TODOIST_API_URL, {
+        const resposta = await fetch(URL_API_TODOIST, {
             headers: {
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${CHAVE_API}`
             }
-        });
+        })
 
-        if (response.ok) {
-            const tarefas = await response.json();
-            const lista = document.querySelector('.card');
-            lista.innerHTML = '';
+        if (resposta.ok) {
+            const tarefas = await resposta.json()
+            const lista = document.querySelector('.card')
+            lista.innerHTML = ''
 
             tarefas.forEach(tarefa => {
-                addNewTaskCard(tarefa.content, tarefa.due ? tarefa.due.date : 'Sem data');
-            });
+                adicionarNovoCartaoTarefa(tarefa.content, tarefa.due ? tarefa.due.date : '', tarefa.id)
+            })
         } else {
-            throw new Error('Falha ao carregar tarefas do Todoist');
+            throw new Error('Falha ao carregar tarefas do Todoist')
         }
-    } catch (error) {
-        console.error('Erro ao carregar tarefas do Todoist:', error);
+    } catch (erro) {
+        console.error('Erro ao carregar tarefas do Todoist:', erro)
     }
 }
 
-// Correção da função para postar uma nova tarefa para a API do Todoist v2
-async function postTaskToTodoist(taskName, dueDate) {
+async function postarTarefaParaTodoist(nomeTarefa, dataEntregaBR) {
     try {
-        const task = { content: taskName };
-        if (dueDate) {
-            task.due_string = dueDate;
-            task.due_lang = 'pt';
+        const tarefa = {
+            content: nomeTarefa,
+            due_date: dataEntregaBR ? formatarDataParaISO(dataEntregaBR) : undefined
         }
         
-        const response = await fetch(TODOIST_API_URL, {
+        const resposta = await fetch(URL_API_TODOIST, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${CHAVE_API}`
             },
-            body: JSON.stringify(task)
-        });
+            body: JSON.stringify(tarefa)
+        })
 
-        if (response.ok) {
-            await exibirTasks();
+        if (resposta.ok) {
+            await exibirTarefas()
         } else {
-            throw new Error('Falha ao postar tarefa no Todoist');
+            throw new Error('Falha ao postar tarefa no Todoist')
         }
-    } catch (error) {
-        console.error('Erro ao postar tarefa no Todoist:', error);
+    } catch (erro) {
+        console.error('Erro ao postar tarefa no Todoist:', erro)
     }
+}
+
+async function removerTarefa(idTarefa, elementoTarefa) {
+  try {
+    const resposta = await fetch(`${URL_API_TODOIST}/${idTarefa}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${CHAVE_API}`
+      }
+    })
+
+    if (resposta.ok) {
+      elementoTarefa.remove()
+    } else {
+      throw new Error('Falha ao deletar tarefa do Todoist')
+    }
+  } catch (erro) {
+    console.error('Erro ao deletar tarefa do Todoist:', erro)
+  }
 }
